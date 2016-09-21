@@ -4,15 +4,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public interface ContactDAO {
-	
-	public void addEntry() throws IOException;
-	public void removeEntry() throws IOException;
-	public void edit(Contact contact);
-	public void sort(int way);
-	public void search();
-	public ArrayList<Contact> getAllContacts();
-	public Contact getContact(int line);
-	public void syncDocument() throws IOException;
-	public void syncArray() throws IOException;
+
+    void addEntry() throws IOException;
+
+    void removeEntry() throws IOException;
+
+    void edit(Contact contact);
+
+    void sort(int way);
+
+    void search();
+
+    ArrayList<Contact> getAllContacts();
+
+    Contact getContact(int line);
+
+    void syncDocument() throws IOException;
+
+    void syncArray() throws IOException;
 
 }
