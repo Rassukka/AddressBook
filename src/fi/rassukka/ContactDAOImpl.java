@@ -1,12 +1,6 @@
 package fi.rassukka;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -16,8 +10,7 @@ public class ContactDAOImpl implements ContactDAO {
     private Scanner scanner = new Scanner(System.in);
     private File file;
     private BufferedReader br;
-    private BufferedWriter writerAppend;
-    private BufferedWriter writerWrite;
+    private BufferedWriter writer;
 
     // FIXME: ParseInt or other removes the first 0, maybe need to be saved as
     // an array
@@ -31,22 +24,11 @@ public class ContactDAOImpl implements ContactDAO {
             file.createNewFile();
         }
 
-        Contact contact = new Contact("fdjska", "fdjksl", "432569", "fhdjsa");
-        Contact contact2 = new Contact("Rasmus", "Haavisto", "321732", "jfkdls");
-        allContacts.add(contact);
-        allContacts.add(contact2);
-
         br = new BufferedReader(new FileReader(file));
-        writerAppend = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
-        writerWrite = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-
+        writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
 
         syncArray();
         syncDocument();
-
-        for (Contact c : allContacts) {
-            System.out.println(c);
-        }
     }
 
     @Override
@@ -79,7 +61,7 @@ public class ContactDAOImpl implements ContactDAO {
         Contact newContact = new Contact(firstName, lastName, phone, email);
         allContacts.add(newContact);
         syncDocument();
-        System.out.println("Succesfully added new contact " + capitalize(firstName) + " " + capitalize(lastName) + ".");
+        System.out.println("Successfully added new contact " + capitalize(firstName) + " " + capitalize(lastName) + ".");
     }
 
     @Override
@@ -155,20 +137,14 @@ public class ContactDAOImpl implements ContactDAO {
     @Override
     public void syncDocument() throws IOException {
 
-        // FIXME: tyhjä rivi lopusta pois
-
-        // chekkaa tämän funktion toiminta Konstruktorissa syncArray pois
-
-        try {
-            writerWrite.write("");
-            writerWrite.flush();
-        } catch (Exception e) {
-            System.out.println("Error" + e);
-        }
+        BufferedWriter writerWrite = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+        writerWrite.write("");
+        writerWrite.flush();
+        writerWrite.close();
 
         for (Contact c : allContacts) {
-            writerAppend.write(capitalize(c.getFirstName().toString()) + " " + capitalize(c.getLastName().toString()) + " " + c.getPhone().toString() + " " + c.getEmail().toString() + System.getProperty("line.separator"));
-            writerAppend.flush();
+            writer.write(capitalize(c.getFirstName()) + " " + capitalize(c.getLastName()) + " " + c.getPhone() + " " + c.getEmail() + System.getProperty("line.separator"));
+            writer.flush();
         }
 
 
@@ -176,22 +152,18 @@ public class ContactDAOImpl implements ContactDAO {
 
     @Override
     public void syncArray() throws IOException {
-        try {
 
-            for (String line = br.readLine(); line != null; line = br.readLine()) {
-                String[] temp = line.split(" ");
-                Contact contact = new Contact(temp[0].toString().toLowerCase(), temp[1].toString().toLowerCase(),
-                        temp[2].toString(), temp[3].toString().toLowerCase());
-                allContacts.add(contact);
-            }
-
-        } catch (Exception e) {
-            System.out.println("Syntax error in file, please check syntax...");
+        String str;
+        while ((str = br.readLine()) != null) {
+            String[] temp = str.split(" ");
+            Contact contact = new Contact(temp[0].toLowerCase(), temp[1].toLowerCase(), temp[2], temp[3].toLowerCase());
+            allContacts.add(contact);
         }
+
 
     }
 
-    public String capitalize(String s) {
+    private String capitalize(String s) {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
