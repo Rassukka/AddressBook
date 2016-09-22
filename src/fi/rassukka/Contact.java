@@ -4,7 +4,6 @@ import java.util.Comparator;
 
 public class Contact {
 
-    // TODO: Make these more efficent
     public static Comparator<Contact> firstNameComparator = new Comparator<Contact>() {
 
         public int compare(Contact s1, Contact s2) {
@@ -45,7 +44,7 @@ public class Contact {
 
         }
     };
-    //private int index;
+
     private String firstName;
     private String lastName;
     private String phone;

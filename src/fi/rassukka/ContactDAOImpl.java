@@ -13,8 +13,6 @@ public class ContactDAOImpl implements ContactDAO {
     private BufferedReader br;
     private BufferedWriter writer;
 
-//  TODO: Automatic sort
-
     public ContactDAOImpl() throws IOException {
 
         file = new File("Addressbook.txt");
@@ -28,6 +26,7 @@ public class ContactDAOImpl implements ContactDAO {
         writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true)));
 
         syncArray();
+        sort("lastname");
         syncDocument();
     }
 
@@ -75,23 +74,40 @@ public class ContactDAOImpl implements ContactDAO {
     }
 
     @Override
-    public void sort(int way) throws IOException {
-        // TODO: Looppi ja poistuminen
-        System.out.println("In which way do you want the database to be sorted? (firstname, lastname, phone, email)");
-        String userDecision = scanner.nextLine().toLowerCase();
-        if (userDecision.equals("firstname")) {
-            Collections.sort(allContacts, Contact.firstNameComparator);
-        } else if (userDecision.equals("lastname")) {
+    public void sort(String s) throws IOException {
+        if (s.equals("lastname")) {
             Collections.sort(allContacts, Contact.lastNameComparator);
-        } else if (userDecision.equals("phone")) {
-            Collections.sort(allContacts, Contact.phoneComparator);
-        } else if (userDecision.equals("email")) {
-            Collections.sort(allContacts, Contact.emailComparator);
         } else {
-            System.out.println("Please enter a valid way");
+            System.out.println("In which way do you want the database to be sorted? (firstname, lastname, phone, email)");
+            boolean running = true;
+            while (running) {
+                String userDecision = scanner.nextLine().toLowerCase();
+                switch (userDecision) {
+                    case "firstname":
+                        Collections.sort(allContacts, Contact.firstNameComparator);
+                        running = false;
+                        break;
+                    case "lastname":
+                        Collections.sort(allContacts, Contact.lastNameComparator);
+                        running = false;
+                        break;
+                    case "phone":
+                        Collections.sort(allContacts, Contact.phoneComparator);
+                        running = false;
+                        break;
+                    case "email":
+                        Collections.sort(allContacts, Contact.emailComparator);
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Syntax error, try again: ");
+                        break;
+                }
+            }
+
+            System.out.println("Successfully sorted the database");
+            syncDocument();
         }
-        System.out.println("Successfully sorted the database with " + userDecision);
-        syncDocument();
     }
 
     @Override

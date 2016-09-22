@@ -11,7 +11,7 @@ public interface ContactDAO {
 
     void edit(Contact contact);
 
-    void sort(int way) throws IOException;
+    void sort(String s) throws IOException;
 
     void search();
 
