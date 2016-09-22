@@ -12,7 +12,7 @@ public class Main {
         // TODO: onExit, close threads writers etc.
         // TODO: security, encrypt and decrypt the data
         // TODO: get and remove duplicates
-        // TODO: indexing system
+        // TODO: 0 == exit
         // FIXME: all to uppercase and lovercase messing up, fix by handling all in lovercase and for printing out and file to uppercase (email is case sensitive?) maybe a specific method for this with enums?
 
         ContactDAO contacts = new ContactDAOImpl();
@@ -27,6 +27,8 @@ public class Main {
                 + "8) Quit\n" //
                 + "\n");
 
+        // TODO: Try and catch
+
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Please choose what you'd like to do with the database: ");
@@ -35,6 +37,9 @@ public class Main {
         // TODO: Chance to switch
         if (userChoice == 3) {
             contacts.addEntry();
+        } else if (userChoice == 7) {
+            contacts.search();
+
         }
 
         scanner.close();

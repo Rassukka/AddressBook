@@ -12,8 +12,7 @@ public class ContactDAOImpl implements ContactDAO {
     private BufferedReader br;
     private BufferedWriter writer;
 
-    // FIXME: ParseInt or other removes the first 0, maybe need to be saved as
-    // an array
+//  TODO: Automatic sort
 
     public ContactDAOImpl() throws IOException {
 
@@ -81,8 +80,6 @@ public class ContactDAOImpl implements ContactDAO {
 
     @Override
     public void search() {
-        // TODO: Debug this
-        // TODO: Maybe 0 == exit?
 
         System.out.println("Who do you want to find?");
         String lookFor = scanner.nextLine().toLowerCase();
@@ -101,11 +98,12 @@ public class ContactDAOImpl implements ContactDAO {
         }
 
         if (found.size() == 1) {
-            System.out.println("Contact found: " + found.get(0).toString());
+            System.out.println("Contact found: " + capitalize(found.get(0).getFirstName()) + " " + capitalize(found.get(0).getLastName()) + " " + found.get(0).getPhone() + " " + found.get(0).getEmail());
         } else if (found.size() > 1) {
             System.out.println("Multiple contacts found for search " + lookFor);
-            for (int i = 1; i <= found.size() + 1; i++) {
-                System.out.println(i + ") " + found.get(i).toString());
+            for (int i = 0; i <= found.size() - 1; i++) {
+                System.out.println(i + 1 + ") " + capitalize(found.get(i).getFirstName()) + " " + capitalize(found.get(i).getLastName()) + " " + found.get(i).getPhone() + " " + found.get(i).getEmail());
+                // i - 1 kun haluaa indexin!
             }
 
             // TODO: what to do with multiple contacts? need for removal?
