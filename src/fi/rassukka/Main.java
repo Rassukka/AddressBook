@@ -39,7 +39,8 @@ public class Main {
             contacts.addEntry();
         } else if (userChoice == 7) {
             contacts.search();
-
+        } else if (userChoice == 6) {
+            contacts.sort(4);
         }
 
         scanner.close();

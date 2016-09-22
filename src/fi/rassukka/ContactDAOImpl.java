@@ -2,6 +2,7 @@ package fi.rassukka;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class ContactDAOImpl implements ContactDAO {
@@ -74,8 +75,23 @@ public class ContactDAOImpl implements ContactDAO {
     }
 
     @Override
-    public void sort(int way) {
-
+    public void sort(int way) throws IOException {
+        // TODO: Looppi ja poistuminen
+        System.out.println("In which way do you want the database to be sorted? (firstname, lastname, phone, email)");
+        String userDecision = scanner.nextLine().toLowerCase();
+        if (userDecision.equals("firstname")) {
+            Collections.sort(allContacts, Contact.firstNameComparator);
+        } else if (userDecision.equals("lastname")) {
+            Collections.sort(allContacts, Contact.lastNameComparator);
+        } else if (userDecision.equals("phone")) {
+            Collections.sort(allContacts, Contact.phoneComparator);
+        } else if (userDecision.equals("email")) {
+            Collections.sort(allContacts, Contact.emailComparator);
+        } else {
+            System.out.println("Please enter a valid way");
+        }
+        System.out.println("Successfully sorted the database with " + userDecision);
+        syncDocument();
     }
 
     @Override
