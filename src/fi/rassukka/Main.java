@@ -7,7 +7,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        // TODO: main loop
         // TODO: Multiple languages
         // TODO: onExit, close threads writers etc.
         // TODO: security, encrypt and decrypt the data

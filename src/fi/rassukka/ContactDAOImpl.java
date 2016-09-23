@@ -4,14 +4,18 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ContactDAOImpl implements ContactDAO {
 
+    public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
     private Scanner scanner = new Scanner(System.in);
     private File file;
     private BufferedReader br;
     private BufferedWriter writer;
+
 
     public ContactDAOImpl() throws IOException {
 
@@ -30,11 +34,16 @@ public class ContactDAOImpl implements ContactDAO {
         syncDocument();
     }
 
+    public static boolean validate(String emailStr) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return matcher.find();
+    }
+
     @Override
     public void addEntry() throws IOException {
 
         // TODO: vain 10 numeroisia puhelinnumeroita?
-        // TODO: emailin muoto pit�� olla oikein?
+        // TODO: emailin muoto pitää olla oikein?
         // TODO: automaattisesti isot kirjaimet nimeen
         // TODO: loop that you can exit with 0.
 
@@ -44,23 +53,48 @@ public class ContactDAOImpl implements ContactDAO {
         String firstName = scanner.nextLine().toLowerCase();
         System.out.println("Last name: ");
         String lastName = scanner.nextLine().toLowerCase();
-        System.out.println("Phone number: ");
 
-        String phone = scanner.nextLine();
-        // TODO: Fix this to actually do something
-        try {
-            Integer.parseInt(phone);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid phone number...");
-        }
-        System.out.println("Email: ");
-        String email = scanner.nextLine();
+        int phoneNumber = 0;
+
+        boolean running = true;
+
+        do {
+            System.out.println("Phone number: ");
+
+            String phone = scanner.nextLine();
+            try {
+                phoneNumber = Integer.parseInt(phone);
+                if ((int) Math.log10(phoneNumber) + 1 != 10) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid phone number...");
+                continue;
+            }
+            running = false;
+        } while (running);
+
+        boolean incorrect = true;
+        String email;
+
+        do {
+            System.out.println("Email: ");
+            email = scanner.nextLine();
+            if (validate(email) == true) {
+                incorrect = false;
+            } else {
+                System.out.println("Invalid email");
+            }
+
+        } while (incorrect);
+
         System.out.println("");
 
-        Contact newContact = new Contact(firstName, lastName, phone, email);
+        Contact newContact = new Contact(firstName, lastName, "" + phoneNumber, email);
         allContacts.add(newContact);
         syncDocument();
         System.out.println("Successfully added new contact " + capitalize(firstName) + " " + capitalize(lastName) + ".");
+
     }
 
     @Override
@@ -196,5 +230,6 @@ public class ContactDAOImpl implements ContactDAO {
     private String capitalize(String s) {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
+
 
 }
