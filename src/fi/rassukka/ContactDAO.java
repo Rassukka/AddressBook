@@ -9,15 +9,11 @@ public interface ContactDAO {
 
     void removeEntry() throws IOException;
 
-    void edit(Contact contact);
+    void edit() throws IOException;
 
     void sort(String s) throws IOException;
 
     void search();
-
-    ArrayList<Contact> getAllContacts();
-
-    Contact getContact(int line);
 
     void syncDocument() throws IOException;
 

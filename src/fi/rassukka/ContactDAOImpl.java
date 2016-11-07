@@ -3,6 +3,7 @@ package fi.rassukka;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 public class ContactDAOImpl implements ContactDAO {
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+    public static int NUMBER_OF_CONTACTS;
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
     private Scanner scanner = new Scanner(System.in);
     private File file;
@@ -32,6 +34,10 @@ public class ContactDAOImpl implements ContactDAO {
         syncArray();
         sort("lastname");
         syncDocument();
+
+//        for (Contact c : allContacts) {
+//            System.out.println(c);
+//        }
     }
 
     public static boolean validate(String emailStr) {
@@ -41,11 +47,6 @@ public class ContactDAOImpl implements ContactDAO {
 
     @Override
     public void addEntry() throws IOException {
-
-        // TODO: vain 10 numeroisia puhelinnumeroita?
-        // TODO: emailin muoto pitää olla oikein?
-        // TODO: automaattisesti isot kirjaimet nimeen
-        // TODO: loop that you can exit with 0.
 
         System.out.println("");
         System.out.println("Give the information for ");
@@ -80,7 +81,7 @@ public class ContactDAOImpl implements ContactDAO {
         do {
             System.out.println("Email: ");
             email = scanner.nextLine();
-            if (validate(email) == true) {
+            if (validate(email) == true || email.equals("0")) {
                 incorrect = false;
             } else {
                 System.out.println("Invalid email");
@@ -100,10 +101,70 @@ public class ContactDAOImpl implements ContactDAO {
     @Override
     public void removeEntry() throws IOException {
 
+        //FIXME: Volvo plz fix
+        ArrayList<Contact> found = getContacts("remove");
+
+        if (found.size() == 1) {
+            System.out.println("Contact found: " + capitalize(found.get(0).getFirstName()) + " " + capitalize(found.get(0).getLastName()) + " " + found.get(0).getPhone() + " " + found.get(0).getEmail());
+            System.out.println("Are you sure you want to remove this contact? (y/n) ");
+            String decision = scanner.nextLine().toLowerCase();
+            if (decision.equals("y")) {
+                for (Iterator<Contact> c = allContacts.iterator(); c.hasNext(); ) {
+                    Contact contact = c.next();
+                    if (contact.getPhone().equals(found.get(0).getPhone())) {
+                        allContacts.remove(contact);
+                        syncDocument();
+                    }
+                }
+            }
+        } else if (found.size() > 1) {
+            System.out.println("Multiple contacts found: ");
+            for (int i = 0; i <= found.size() - 1; i++) {
+                System.out.println(i + 1 + ") " + capitalize(found.get(i).getFirstName()) + " " + capitalize(found.get(i).getLastName()) + " " + found.get(i).getPhone() + " " + found.get(i).getEmail());
+            }
+            boolean running = true;
+            do {
+                try {
+                    System.out.println("Please choose who you want to remove: ");
+                    int choice = scanner.nextInt();
+                    if (choice > found.size() || choice < 0) {
+                        System.out.println("Invalid number, please try again...");
+                    } else if (choice == 0) {
+                        running = false;
+                        break;
+                    } else {
+                        Contact remove = found.get(choice - 1);
+                        System.out.println(capitalize(remove.getFirstName()) + " " + capitalize(remove.getLastName()) + " " + remove.getPhone() + " " + remove.getEmail());
+                        System.out.println("Are you sure you want to remove this contact? (y/n)");
+                        String decision = scanner.nextLine();
+                        if (decision.equals("y")) {
+                            for (Iterator<Contact> c = allContacts.iterator(); c.hasNext(); ) {
+                                Contact contact = c.next();
+                                if (contact.getPhone().equals(remove.getPhone())) {
+                                    allContacts.remove(contact);
+                                    syncDocument();
+                                    System.out.println("Successfully removed contact");
+                                }
+                            }
+                        } else {
+                            running = false;
+                        }
+
+                    }
+                } catch (Exception e) {
+                    System.out.println("Invalid input");
+                    continue;
+                }
+            } while (running);
+        } else {
+            System.out.println("No contacts found");
+        }
+
+
     }
 
     @Override
-    public void edit(Contact contact) {
+    public void edit() throws IOException {
 
     }
 
@@ -133,6 +194,9 @@ public class ContactDAOImpl implements ContactDAO {
                         Collections.sort(allContacts, Contact.emailComparator);
                         running = false;
                         break;
+                    case "0":
+                        running = false;
+                        break;
                     default:
                         System.out.println("Syntax error, try again: ");
                         break;
@@ -147,55 +211,19 @@ public class ContactDAOImpl implements ContactDAO {
     @Override
     public void search() {
 
-        System.out.println("Who do you want to find?");
-        String lookFor = scanner.nextLine().toLowerCase();
-        ArrayList<Contact> found = new ArrayList<Contact>();
-
-        for (Contact c : allContacts) {
-            if (lookFor.equals(c.getFirstName())) {
-                found.add(c);
-            } else if (lookFor.equals(c.getLastName())) {
-                found.add(c);
-            } else if (lookFor.equals(c.getPhone())) {
-                found.add(c);
-            } else if (lookFor.equals(c.getEmail())) {
-                found.add(c);
-            }
-        }
+        ArrayList<Contact> found = getContacts("search");
 
         if (found.size() == 1) {
             System.out.println("Contact found: " + capitalize(found.get(0).getFirstName()) + " " + capitalize(found.get(0).getLastName()) + " " + found.get(0).getPhone() + " " + found.get(0).getEmail());
         } else if (found.size() > 1) {
-            System.out.println("Multiple contacts found for search " + lookFor);
+            System.out.println("Multiple contacts found: ");
             for (int i = 0; i <= found.size() - 1; i++) {
                 System.out.println(i + 1 + ") " + capitalize(found.get(i).getFirstName()) + " " + capitalize(found.get(i).getLastName()) + " " + found.get(i).getPhone() + " " + found.get(i).getEmail());
-                // i - 1 kun haluaa indexin!
+                // i - 1 when you want index instead of number showed
             }
-
-            // TODO: what to do with multiple contacts? need for removal?
-
-            // int choice = scanner.nextInt();
-            // boolean running = false;
-            // while (running) {
-            // if (choice > found.size() || choice < 0) {
-            // System.out.println("Invalid number, please try again...");
-            // } else {
-            //
-            // }
+        } else {
+            System.out.println("No contacts found");
         }
-
-    }
-
-    @Override
-    public ArrayList<Contact> getAllContacts() {
-
-        return null;
-    }
-
-    @Override
-    public Contact getContact(int line) {
-
-        return null;
     }
 
     @Override
@@ -231,5 +259,30 @@ public class ContactDAOImpl implements ContactDAO {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
+    private ArrayList<Contact> getContacts(String mode) {
+
+        if (mode.equals("search")) {
+            System.out.println("Who do you want to find?");
+        } else if (mode.equals("remove")) {
+            System.out.println("Who do you want to remove?");
+        } else if (mode.equals("edit")) {
+            System.out.println("Who do you want to edit?");
+        }
+        String lookFor = scanner.nextLine().toLowerCase();
+        ArrayList<Contact> found = new ArrayList<Contact>();
+
+        for (Contact c : allContacts) {
+            if (lookFor.equals(c.getFirstName())) {
+                found.add(c);
+            } else if (lookFor.equals(c.getLastName())) {
+                found.add(c);
+            } else if (lookFor.equals(c.getPhone())) {
+                found.add(c);
+            } else if (lookFor.equals(c.getEmail())) {
+                found.add(c);
+            }
+        }
+        return found;
+    }
 
 }
