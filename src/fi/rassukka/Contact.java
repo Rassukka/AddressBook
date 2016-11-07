@@ -4,47 +4,34 @@ import java.util.Comparator;
 
 public class Contact {
 
-    public static Comparator<Contact> firstNameComparator = new Comparator<Contact>() {
+    public static Comparator<Contact> firstNameComparator = (s1, s2) -> {
 
-        public int compare(Contact s1, Contact s2) {
+        String firstName1 = s1.getFirstName().toUpperCase();
+        String firstName2 = s2.getFirstName().toUpperCase();
+        return firstName1.compareTo(firstName2);
 
-            String firstName1 = s1.getFirstName().toUpperCase();
-            String firstName2 = s2.getFirstName().toUpperCase();
-            return firstName1.compareTo(firstName2);
-
-        }
     };
-    public static Comparator<Contact> lastNameComparator = new Comparator<Contact>() {
+    public static Comparator<Contact> lastNameComparator = (s1, s2) -> {
 
-        public int compare(Contact s1, Contact s2) {
+        String lastName1 = s1.getLastName().toUpperCase();
+        String lastName2 = s2.getLastName().toUpperCase();
+        return lastName1.compareTo(lastName2);
 
-            String lastName1 = s1.getLastName().toUpperCase();
-            String lastName2 = s2.getLastName().toUpperCase();
-            return lastName1.compareTo(lastName2);
-
-        }
     };
-    public static Comparator<Contact> phoneComparator = new Comparator<Contact>() {
+    public static Comparator<Contact> phoneComparator = (s1, s2) -> {
 
-        public int compare(Contact s1, Contact s2) {
+        String phone1 = s1.getPhone().toUpperCase();
+        String phone2 = s2.getPhone().toUpperCase();
+        return phone1.compareTo(phone2);
 
-            String phone1 = s1.getPhone().toUpperCase();
-            String phone2 = s2.getPhone().toUpperCase();
-            return phone1.compareTo(phone2);
-
-        }
     };
-    public static Comparator<Contact> emailComparator = new Comparator<Contact>() {
+    public static Comparator<Contact> emailComparator = (s1, s2) -> {
 
-        public int compare(Contact s1, Contact s2) {
+        String email1 = s1.getEmail().split("@")[1].toUpperCase();
+        String email2 = s2.getEmail().split("@")[1].toUpperCase();
+        return email1.compareTo(email2);
 
-            String email1 = s1.getEmail().toUpperCase();
-            String email2 = s2.getEmail().toUpperCase();
-            return email1.compareTo(email2);
-
-        }
     };
-
     private String firstName;
     private String lastName;
     private String phone;

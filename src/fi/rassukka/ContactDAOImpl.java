@@ -226,8 +226,9 @@ public class ContactDAOImpl implements ContactDAO {
                 }
             }
 
-            System.out.println("Successfully sorted the database");
             syncDocument();
+            System.out.println("Successfully sorted the database");
+
         }
     }
 
