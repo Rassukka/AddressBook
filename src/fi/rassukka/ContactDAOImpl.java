@@ -10,8 +10,10 @@ import java.util.regex.Pattern;
 
 public class ContactDAOImpl implements ContactDAO {
 
+    // TODO: make sure this works how it is supposed to
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-    public static int NUMBER_OF_CONTACTS;
+    // TODO: Implement this
+//  public static int NUMBER_OF_CONTACTS;
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
     private Scanner scanner = new Scanner(System.in);
     private File file;
@@ -24,7 +26,7 @@ public class ContactDAOImpl implements ContactDAO {
         file = new File("Addressbook.txt");
 
         if (!file.exists()) {
-            System.out.println("Could not find the old file Addressbook.txt, generating a new one...");
+            System.out.println("Could not find the file Addressbook.txt, generating a new one...");
             file.createNewFile();
         }
 
@@ -34,13 +36,9 @@ public class ContactDAOImpl implements ContactDAO {
         syncArray();
         sort("lastname");
         syncDocument();
-
-//        for (Contact c : allContacts) {
-//            System.out.println(c);
-//        }
     }
 
-    public static boolean validate(String emailStr) {
+    private static boolean validate(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
         return matcher.find();
     }
@@ -48,50 +46,72 @@ public class ContactDAOImpl implements ContactDAO {
     @Override
     public void addEntry() throws IOException {
 
+        //Should be functional and complete.
+
         System.out.println("");
-        System.out.println("Give the information for ");
+        System.out.println("Give the information for the contact");
+
         System.out.println("First name: ");
         String firstName = scanner.nextLine().toLowerCase();
+        if (firstName.equals("0")) {
+            return;
+        }
+
         System.out.println("Last name: ");
         String lastName = scanner.nextLine().toLowerCase();
-
-        int phoneNumber = 0;
+        if (lastName.equals("0")) {
+            return;
+        }
 
         boolean running = true;
 
+        String phone;
         do {
             System.out.println("Phone number: ");
 
-            String phone = scanner.nextLine();
-            try {
-                phoneNumber = Integer.parseInt(phone);
-                if ((int) Math.log10(phoneNumber) + 1 != 10) {
-                    throw new NumberFormatException();
+            phone = scanner.nextLine();
+
+            if (phone.length() == 10 || phone.equals("0")) {
+                try {
+                    Integer.parseInt(phone);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid phone number...");
+                    continue;
                 }
-            } catch (NumberFormatException e) {
+                running = false;
+            } else {
                 System.out.println("Invalid phone number...");
                 continue;
             }
-            running = false;
         } while (running);
 
-        boolean incorrect = true;
+        if (phone.equals("0")) {
+            return;
+        }
+
+        running = true;
         String email;
 
         do {
             System.out.println("Email: ");
             email = scanner.nextLine();
+
             if (validate(email) == true || email.equals("0")) {
-                incorrect = false;
+                running = false;
             } else {
-                System.out.println("Invalid email");
+                System.out.println("Invalid email...");
             }
 
-        } while (incorrect);
+
+        } while (running);
+
+        if (email.equals("0")) {
+            return;
+        }
 
         System.out.println("");
 
-        Contact newContact = new Contact(firstName, lastName, "" + phoneNumber, email);
+        Contact newContact = new Contact(firstName, lastName, phone, email);
         allContacts.add(newContact);
         syncDocument();
         System.out.println("Successfully added new contact " + capitalize(firstName) + " " + capitalize(lastName) + ".");
@@ -109,14 +129,14 @@ public class ContactDAOImpl implements ContactDAO {
             System.out.println("Are you sure you want to remove this contact? (y/n) ");
             String decision = scanner.nextLine().toLowerCase();
             if (decision.equals("y")) {
-                for (Iterator<Contact> c = allContacts.iterator(); c.hasNext(); ) {
-                    Contact contact = c.next();
-                    if (contact.getPhone().equals(found.get(0).getPhone())) {
-                        allContacts.remove(contact);
-                        syncDocument();
-                    }
-                }
+//                for (Iterator<Contact> c = allContacts.iterator(); c.hasNext(); ) {
+//                    Contact contact = c.next();
+//                    if (contact.getPhone().equals(found.get(0).getPhone())) {
+                allContacts.remove(found.get(0));
+                syncDocument();
             }
+//                }
+//            }
         } else if (found.size() > 1) {
             System.out.println("Multiple contacts found: ");
             for (int i = 0; i <= found.size() - 1; i++) {
@@ -153,7 +173,7 @@ public class ContactDAOImpl implements ContactDAO {
                     }
                 } catch (Exception e) {
                     System.out.println("Invalid input");
-                    continue;
+                    break;
                 }
             } while (running);
         } else {
@@ -228,17 +248,17 @@ public class ContactDAOImpl implements ContactDAO {
 
     @Override
     public void syncDocument() throws IOException {
+        if (allContacts.size() != 0) {
+            BufferedWriter writerWrite = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+            writerWrite.write("");
+            writerWrite.flush();
+            writerWrite.close();
 
-        BufferedWriter writerWrite = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-        writerWrite.write("");
-        writerWrite.flush();
-        writerWrite.close();
-
-        for (Contact c : allContacts) {
-            writer.write(capitalize(c.getFirstName()) + " " + capitalize(c.getLastName()) + " " + c.getPhone() + " " + c.getEmail() + System.getProperty("line.separator"));
-            writer.flush();
+            for (Contact c : allContacts) {
+                writer.write(capitalize(c.getFirstName()) + " " + capitalize(c.getLastName()) + " " + c.getPhone() + " " + c.getEmail() + System.getProperty("line.separator"));
+                writer.flush();
+            }
         }
-
 
     }
 
@@ -253,10 +273,6 @@ public class ContactDAOImpl implements ContactDAO {
         }
 
 
-    }
-
-    private String capitalize(String s) {
-        return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
     private ArrayList<Contact> getContacts(String mode) {
@@ -283,6 +299,10 @@ public class ContactDAOImpl implements ContactDAO {
             }
         }
         return found;
+    }
+
+    private String capitalize(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
 }
