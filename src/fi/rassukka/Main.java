@@ -20,6 +20,9 @@ public class Main {
         // TODO: Documentation
         // TODO: Remove whitespace from inputs
         // TODO: Make the texts great again
+        // TODO: Maybe change the getContact mode to enum?
+        // TODO: Some fine eastereggs :3
+        // TODO: add functionality to search by email ending
 
 
         // Poistaa puhelinnumeron perusteella koska sen ei koskaan pitäisi olla sama kahdella ihmisellä
@@ -83,6 +86,7 @@ public class Main {
 
     }
 
+    //FIXME: For some reason prints also the default: no such choice
     private static void printHelp() {
         System.out.print("1) Add an entry\n" //
                 + "2) Remove an entry\n" //
